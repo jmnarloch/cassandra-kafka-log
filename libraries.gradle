@@ -1,0 +1,11 @@
+ext {
+
+    libraries = [
+
+            cassandra: 'org.apache.cassandra:cassandra-all:3.7',
+            kafkaClients: 'org.apache.kafka:kafka-clients:0.10.0.0',
+
+            junit    : 'junit:junit:4.12',
+            mockito  : 'org.mockito:mockito-all:1.10.19'
+    ]
+}
