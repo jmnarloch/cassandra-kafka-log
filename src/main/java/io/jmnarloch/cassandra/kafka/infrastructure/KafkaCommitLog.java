@@ -17,6 +17,7 @@ package io.jmnarloch.cassandra.kafka.infrastructure;
 
 import io.jmnarloch.cassandra.kafka.api.CommitLog;
 import io.jmnarloch.cassandra.kafka.environment.Environment;
+import io.jmnarloch.cassandra.kafka.environment.Properties;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
@@ -27,7 +28,7 @@ public class KafkaCommitLog implements CommitLog {
     private final KafkaProducer<String, byte[]> kafkaProducer;
 
     public KafkaCommitLog(Environment environment) {
-        this.topic = environment.get("kafka.topic");
+        this.topic = environment.get(Properties.KAFKA_TOPIC);
         this.kafkaProducer = new KafkaProducer<>(environment.prefix("kafka.").asProperties());
     }
 
