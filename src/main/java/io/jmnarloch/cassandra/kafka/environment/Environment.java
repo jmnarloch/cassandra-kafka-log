@@ -39,7 +39,7 @@ public class Environment {
         final Properties properties = new Properties();
         for(Map.Entry<Object, Object> entry : properties.entrySet()) {
             if(entry.getKey() instanceof String && ((String) entry.getKey()).startsWith(prefix)) {
-                properties.put(entry.getKey(), entry.getValue());
+                properties.put(((String) entry.getKey()).substring(0, prefix.length()), entry.getValue());
             }
         }
         return new Environment(properties);

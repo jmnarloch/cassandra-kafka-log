@@ -46,10 +46,6 @@ public class JacksonFormatter implements Formatter {
         }
     }
 
-    private byte[] writeAsBytes(ObjectNode document) throws IOException {
-        return objectMapper.writer().writeValueAsBytes(document);
-    }
-
     private ObjectNode formatColumns(Row row) throws CharacterCodingException {
         final ObjectNode columns = objectMapper.createObjectNode();
         for (ColumnDefinition definition : row.columns()) {
@@ -57,5 +53,9 @@ public class JacksonFormatter implements Formatter {
             columns.put(definition.name.toString(), ByteBufferUtil.string(data));
         }
         return columns;
+    }
+
+    private byte[] writeAsBytes(ObjectNode document) throws IOException {
+        return objectMapper.writer().writeValueAsBytes(document);
     }
 }
