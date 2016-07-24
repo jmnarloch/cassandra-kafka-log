@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,15 +31,20 @@ import org.apache.cassandra.triggers.ITrigger;
 
 import java.util.Collection;
 
+import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.getKey;
+import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.nothing;
+import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.shouldSkip;
+
 public class CommitLogTrigger implements ITrigger {
 
     @Override
     public Collection<Mutation> augment(Partition update) {
 
+        // TODO possibly both the environment and commit log instance could be turn into fields (can they?)
         final Environment environment = Environment.loadDefault();
         final Formatter formatter = FormatterFactory.createFormatter(environment);
         try (final CommitLog commitLog = new KafkaCommitLog(environment)) {
-            final String key = update.metadata().getKeyValidator().getString(update.partitionKey().getKey());
+            final String key = getKey(update);
             final UnfilteredRowIterator rows = update.unfilteredIterator();
             while (rows.hasNext()) {
                 final Unfiltered unfilteredRow = rows.next();
@@ -54,13 +59,5 @@ public class CommitLogTrigger implements ITrigger {
         } catch (Exception e) {
             throw new CommitLogException("An unexpected error occurred when trying to export the column information", e);
         }
-    }
-
-    private boolean shouldSkip(Unfiltered unfiltered) {
-        return !unfiltered.isRow() || !Clustering.class.isAssignableFrom(unfiltered.getClass());
-    }
-
-    private static Collection<Mutation> nothing() {
-        return null;
     }
 }
