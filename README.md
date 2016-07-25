@@ -7,7 +7,7 @@
 
 ## Setup
 
-Add the Spring Boot starter to your project:
+Add the library to your project dependencies:
 
 ```xml
 <dependency>
