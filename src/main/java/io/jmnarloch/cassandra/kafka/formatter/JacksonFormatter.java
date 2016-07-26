@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,18 +26,23 @@ import java.nio.charset.CharacterCodingException;
 
 public class JacksonFormatter implements Formatter {
 
+    private static final String COLUMNS = "columns";
+
     private final ObjectMapper objectMapper;
 
     public JacksonFormatter() {
-        objectMapper = new ObjectMapper();
+        this(new ObjectMapper());
+    }
+
+    public JacksonFormatter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public byte[] format(RowInfo row) {
-
         try {
             final ObjectNode document = objectMapper.createObjectNode();
-            document.put("columns", formatColumns(row));
+            document.put(COLUMNS, formatColumns(row));
             return writeAsBytes(document);
         } catch (IOException e) {
             throw new FormatterException("Could not encode the column family", e);

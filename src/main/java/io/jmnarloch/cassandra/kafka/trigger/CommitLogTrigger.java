@@ -22,7 +22,6 @@ import io.jmnarloch.cassandra.kafka.formatter.Formatter;
 import io.jmnarloch.cassandra.kafka.formatter.FormatterFactory;
 import io.jmnarloch.cassandra.kafka.infrastructure.KafkaCommitLog;
 import io.jmnarloch.cassandra.kafka.row.RowInfo;
-import io.jmnarloch.cassandra.kafka.utils.TriggerUtils;
 import org.apache.cassandra.db.Mutation;
 import org.apache.cassandra.db.partitions.Partition;
 import org.apache.cassandra.db.rows.RowIterator;
@@ -32,6 +31,7 @@ import java.util.Collection;
 
 import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.getKey;
 import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.nothing;
+import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.rowIterator;
 
 public class CommitLogTrigger implements ITrigger {
 
@@ -53,10 +53,11 @@ public class CommitLogTrigger implements ITrigger {
 
         try (final CommitLog commitLog = new KafkaCommitLog(environment)) {
             final String key = getKey(update);
-            final RowIterator rows = TriggerUtils.rowIterator(update.unfilteredIterator());
+            final RowIterator rows = rowIterator(update.unfilteredIterator());
             while (rows.hasNext()) {
-                final RowInfo row = new RowInfo(update.metadata(), update.partitionKey(), rows.next());
-                final byte[] data = formatter.format(row);
+                final byte[] data = formatter.format(
+                        new RowInfo(update.metadata(), update.partitionKey(), rows.next())
+                );
                 commitLog.commit(key, data);
             }
             return nothing();
