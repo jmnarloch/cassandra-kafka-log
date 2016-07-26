@@ -24,9 +24,9 @@ import org.apache.cassandra.utils.FBUtilities;
 
 import java.util.Collection;
 
-public final class TriggerUtils {
+public final class CassandraUtils {
 
-    private TriggerUtils() {
+    private CassandraUtils() {
 
     }
 

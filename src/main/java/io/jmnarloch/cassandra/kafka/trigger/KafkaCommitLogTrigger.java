@@ -29,21 +29,21 @@ import org.apache.cassandra.triggers.ITrigger;
 
 import java.util.Collection;
 
-import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.getKey;
-import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.nothing;
-import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.rowIterator;
+import static io.jmnarloch.cassandra.kafka.utils.CassandraUtils.getKey;
+import static io.jmnarloch.cassandra.kafka.utils.CassandraUtils.nothing;
+import static io.jmnarloch.cassandra.kafka.utils.CassandraUtils.rowIterator;
 
-public class CommitLogTrigger implements ITrigger {
+public class KafkaCommitLogTrigger implements ITrigger {
 
     private final Environment environment;
 
     private final Formatter formatter;
 
-    public CommitLogTrigger() {
+    public KafkaCommitLogTrigger() {
         this(Environment.loadDefault());
     }
 
-    protected CommitLogTrigger(Environment environment) {
+    protected KafkaCommitLogTrigger(Environment environment) {
         this.environment = environment;
         this.formatter = FormatterFactory.createFormatter(environment);
     }
@@ -62,7 +62,7 @@ public class CommitLogTrigger implements ITrigger {
             }
             return nothing();
         } catch (Exception e) {
-            throw new CommitLogException("An unexpected error occurred when trying to export the column information", e);
+            throw new CommitLogException("An unexpected error occurred when trying to export the row data", e);
         }
     }
 }
