@@ -16,14 +16,12 @@
 package io.jmnarloch.cassandra.kafka.formatter;
 
 import io.jmnarloch.cassandra.kafka.exception.FormatterException;
-import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.utils.ByteBufferUtil;
+import io.jmnarloch.cassandra.kafka.row.CellInfo;
+import io.jmnarloch.cassandra.kafka.row.RowInfo;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 
 public class JacksonFormatter implements Formatter {
@@ -35,7 +33,7 @@ public class JacksonFormatter implements Formatter {
     }
 
     @Override
-    public byte[] format(Row row) {
+    public byte[] format(RowInfo row) {
 
         try {
             final ObjectNode document = objectMapper.createObjectNode();
@@ -46,11 +44,10 @@ public class JacksonFormatter implements Formatter {
         }
     }
 
-    private ObjectNode formatColumns(Row row) throws CharacterCodingException {
+    private ObjectNode formatColumns(RowInfo row) throws CharacterCodingException {
         final ObjectNode columns = objectMapper.createObjectNode();
-        for (ColumnDefinition definition : row.columns()) {
-            final ByteBuffer data = row.getCell(definition).value();
-            columns.put(definition.name.toString(), ByteBufferUtil.string(data));
+        for (CellInfo cell : row) {
+            columns.put(cell.getName(), cell.getValueAsString());
         }
         return columns;
     }

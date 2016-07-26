@@ -21,37 +21,41 @@ import io.jmnarloch.cassandra.kafka.exception.CommitLogException;
 import io.jmnarloch.cassandra.kafka.formatter.Formatter;
 import io.jmnarloch.cassandra.kafka.formatter.FormatterFactory;
 import io.jmnarloch.cassandra.kafka.infrastructure.KafkaCommitLog;
-import org.apache.cassandra.db.Clustering;
+import io.jmnarloch.cassandra.kafka.row.RowInfo;
+import io.jmnarloch.cassandra.kafka.utils.TriggerUtils;
 import org.apache.cassandra.db.Mutation;
 import org.apache.cassandra.db.partitions.Partition;
-import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.db.rows.Unfiltered;
-import org.apache.cassandra.db.rows.UnfilteredRowIterator;
+import org.apache.cassandra.db.rows.RowIterator;
 import org.apache.cassandra.triggers.ITrigger;
 
 import java.util.Collection;
 
 import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.getKey;
 import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.nothing;
-import static io.jmnarloch.cassandra.kafka.utils.TriggerUtils.shouldSkip;
 
 public class CommitLogTrigger implements ITrigger {
+
+    private final Environment environment;
+
+    private final Formatter formatter;
+
+    public CommitLogTrigger() {
+        this(Environment.loadDefault());
+    }
+
+    protected CommitLogTrigger(Environment environment) {
+        this.environment = environment;
+        this.formatter = FormatterFactory.createFormatter(environment);
+    }
 
     @Override
     public Collection<Mutation> augment(Partition update) {
 
-        // TODO possibly both the environment and commit log instance could be turn into fields (can they?)
-        final Environment environment = Environment.loadDefault();
-        final Formatter formatter = FormatterFactory.createFormatter(environment);
         try (final CommitLog commitLog = new KafkaCommitLog(environment)) {
             final String key = getKey(update);
-            final UnfilteredRowIterator rows = update.unfilteredIterator();
+            final RowIterator rows = TriggerUtils.rowIterator(update.unfilteredIterator());
             while (rows.hasNext()) {
-                final Unfiltered unfilteredRow = rows.next();
-                if (shouldSkip(unfilteredRow)) {
-                    continue;
-                }
-                final Row row = update.getRow((Clustering) unfilteredRow);
+                final RowInfo row = new RowInfo(update.metadata(), update.partitionKey(), rows.next());
                 final byte[] data = formatter.format(row);
                 commitLog.commit(key, data);
             }

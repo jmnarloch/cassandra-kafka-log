@@ -15,9 +15,9 @@
  */
 package io.jmnarloch.cassandra.kafka.formatter;
 
-import org.apache.cassandra.db.rows.Row;
+import io.jmnarloch.cassandra.kafka.row.RowInfo;
 
 public interface Formatter {
 
-    byte[] format(Row row);
+    byte[] format(RowInfo row);
 }
