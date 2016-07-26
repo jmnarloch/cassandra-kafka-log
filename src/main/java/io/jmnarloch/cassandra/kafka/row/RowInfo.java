@@ -79,7 +79,6 @@ public final class RowInfo implements Iterable<CellInfo> {
 
     @Override
     public Iterator<CellInfo> iterator() {
-
-        return null;
+        return cells.iterator();
     }
 }

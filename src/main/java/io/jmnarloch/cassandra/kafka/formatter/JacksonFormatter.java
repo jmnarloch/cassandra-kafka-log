@@ -18,6 +18,7 @@ package io.jmnarloch.cassandra.kafka.formatter;
 import io.jmnarloch.cassandra.kafka.exception.FormatterException;
 import io.jmnarloch.cassandra.kafka.row.CellInfo;
 import io.jmnarloch.cassandra.kafka.row.RowInfo;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 
@@ -41,11 +42,11 @@ public class JacksonFormatter implements Formatter {
     @Override
     public byte[] format(RowInfo row) {
         try {
-            final ObjectNode document = objectMapper.createObjectNode();
-            document.put(COLUMNS, formatColumns(row));
+            final JsonNode document = objectMapper.createObjectNode()
+                    .put(COLUMNS, formatColumns(row));
             return writeAsBytes(document);
         } catch (IOException e) {
-            throw new FormatterException("Could not encode the column family", e);
+            throw new FormatterException("Could not encode the row", e);
         }
     }
 
@@ -57,7 +58,7 @@ public class JacksonFormatter implements Formatter {
         return columns;
     }
 
-    private byte[] writeAsBytes(ObjectNode document) throws IOException {
+    private byte[] writeAsBytes(JsonNode document) throws IOException {
         return objectMapper.writer().writeValueAsBytes(document);
     }
 }
