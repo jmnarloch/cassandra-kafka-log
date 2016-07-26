@@ -43,18 +43,34 @@ jar {
     }
 }
 
+jar.doFirst {
+    from configurations.repackage.filter({it.isFile()}).collect { zipTree(it) }
+}
+
 repositories {
     jcenter()
 }
 
 compileJava {
-    options.fork = true
+    options.fork = false
+}
+
+configurations {
+    repackage
+}
+
+sourceSets.all {
+    compileClasspath += configurations.repackage
+}
+
+javadoc {
+    classpath += configurations.repackage
 }
 
 dependencies {
 
     compile (libraries.cassandra)
-    compile (libraries.kafkaClients)
+    repackage (libraries.kafkaClients)
 
     testCompile (libraries.junit)
     testCompile (libraries.mockito)
